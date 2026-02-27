@@ -1,0 +1,8 @@
+[test]
+preload = ["./tests/setup.ts"]
+parallel = true
+coverage = true
+coverageThreshold = 0.8
+
+[install]
+frozenLockfile = true
