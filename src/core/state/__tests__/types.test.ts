@@ -1,6 +1,6 @@
 // src/core/state/__tests__/types.test.ts
 import { describe, test, expect } from 'bun:test'
-import { createInitialState, type AgentState, type QueryType } from '../types'
+import { createInitialState, type QueryType } from '../types'
 
 describe('State Types', () => {
   test('createInitialState returns correct initial state', () => {

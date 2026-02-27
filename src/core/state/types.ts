@@ -42,7 +42,7 @@ export interface AgentStateValues {
   errors: AgentError[]
 }
 
-export const AgentStateAnnotation = Annotation<AgentStateValues>({
+export const AgentStateAnnotation = Annotation.Root({
   query: Annotation<string>,
   conversationId: Annotation<string | undefined>,
   context: Annotation<ConversationContext | undefined>,
