@@ -21,6 +21,7 @@ export function mockLLM(options?: {
   const sequence = options?.sequence
 
   return mock.module('ai', () => ({
+    tool: mock((config: { description: string; inputSchema: unknown; execute: () => unknown }) => config),
     generateText: mock(async (params: { prompt?: string; system?: string }) => {
       llmCallCount++
 
@@ -95,6 +96,7 @@ export function mockRAGError(error: { ok: false; status: number; statusText: str
  */
 export function mockLLMError(error: Error) {
   return mock.module('ai', () => ({
+    tool: mock((config: { description: string; inputSchema: unknown; execute: () => unknown }) => config),
     generateText: mock(async () => {
       throw error
     }),
@@ -106,6 +108,7 @@ export function mockLLMError(error: Error) {
  */
 export function mockLLMMalformed() {
   return mock.module('ai', () => ({
+    tool: mock((config: { description: string; inputSchema: unknown; execute: () => unknown }) => config),
     generateText: mock(async () => ({
       text: '{ invalid json',
     })),
