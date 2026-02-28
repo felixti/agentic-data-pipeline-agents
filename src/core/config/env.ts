@@ -53,6 +53,10 @@ interface Config {
   server: {
     port: number
   }
+  telemetry: {
+    phoenixEndpoint: string | undefined
+    phoenixApiKey: string | undefined
+  }
 }
 
 /**
@@ -78,6 +82,10 @@ function createConfig(): Config {
     },
     server: {
       port: validatePort(portValue, 'PORT'),
+    },
+    telemetry: {
+      phoenixEndpoint: getEnv('PHOENIX_COLLECTOR_ENDPOINT'),
+      phoenixApiKey: getEnv('PHOENIX_API_KEY'),
     },
   }
 }
