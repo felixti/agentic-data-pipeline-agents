@@ -1,6 +1,6 @@
 // src/agents/retriever/index.ts
 import { hybridSearch, type SearchResult } from '@/core/tools'
-import { createSpan } from '@/core/telemetry'
+import { createSpan, SemanticConventions } from '@/core/telemetry'
 import type { RetrievedChunk, QueryType } from '@/core/state'
 import { RETRIEVER_SYSTEM_PROMPT } from './prompts'
 
@@ -20,10 +20,9 @@ export async function retrieveDocuments(options: RetrieveOptions): Promise<Retri
   const topK = options.topK ?? 5
 
   return createSpan('retrieve_tool_call', {
-    'agent.name': 'retriever',
+    [SemanticConventions.OPENINFERENCE_SPAN_KIND]: 'retriever',
     'tool.name': 'rag-api',
-    'tool.query': options.query,
-    'tool.top_k': topK,
+    'input.value': options.query.substring(0, 500),
   }, async (span) => {
     const response = await hybridSearch({
       query: options.query,
