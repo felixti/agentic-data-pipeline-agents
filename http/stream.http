@@ -1,0 +1,65 @@
+### Agentic Data Pipeline - Streaming Chat API
+### Base URL: http://localhost:3000
+### SSE streaming endpoint for real-time agent updates
+
+@baseUrl = http://localhost:3000
+
+### Stream - Basic Query
+# Watch real-time updates from each agent
+POST {{baseUrl}}/api/v1/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "query": "What is deep learning?"
+}
+
+### Stream - Analytical Query
+# See how classifier identifies query type
+POST {{baseUrl}}/api/v1/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "query": "Explain the difference between AI, machine learning, and deep learning"
+}
+
+### Stream - Comparative Query
+# Watch retriever fetch relevant documents
+POST {{baseUrl}}/api/v1/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "query": "Compare transformer models with recurrent neural networks"
+}
+
+### Stream - Multi-hop Query
+# Complex query requiring multiple retrievals
+POST {{baseUrl}}/api/v1/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "query": "What techniques are used in modern NLP and how do they relate to attention mechanisms?"
+}
+
+### Stream - Business Query
+# Financial/business analysis
+POST {{baseUrl}}/api/v1/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "query": "Analyze the quarterly revenue trends and identify growth drivers"
+}
+
+### Stream - Error Case - Missing Query
+# Should return 400 Bad Request
+POST {{baseUrl}}/api/v1/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{}
+
+###

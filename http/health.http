@@ -1,0 +1,11 @@
+### Agentic Data Pipeline - Health Check
+### Base URL: http://localhost:3000
+
+@baseUrl = http://localhost:3000
+
+### Health Check
+# Returns server health status and timestamp
+GET {{baseUrl}}/health
+Accept: application/json
+
+###

@@ -1,0 +1,88 @@
+### Agentic Data Pipeline - Chat API
+### Base URL: http://localhost:3000
+### Non-streaming chat endpoint for multi-agent RAG queries
+
+@baseUrl = http://localhost:3000
+
+### Basic Query - Factual
+# Simple fact-based question
+POST {{baseUrl}}/api/v1/chat
+Content-Type: application/json
+
+{
+  "query": "What is machine learning?"
+}
+
+### Basic Query - Analytical
+# Question requiring explanation
+POST {{baseUrl}}/api/v1/chat
+Content-Type: application/json
+
+{
+  "query": "Explain how neural networks learn from data"
+}
+
+### Basic Query - Comparative
+# Question comparing multiple concepts
+POST {{baseUrl}}/api/v1/chat
+Content-Type: application/json
+
+{
+  "query": "Compare supervised and unsupervised learning"
+}
+
+### Query with Conversation ID
+# Multi-turn conversation support
+POST {{baseUrl}}/api/v1/chat
+Content-Type: application/json
+
+{
+  "query": "What are the main types of machine learning?",
+  "conversationId": "session-001"
+}
+
+### Follow-up Query (same conversation)
+# Continue the conversation
+POST {{baseUrl}}/api/v1/chat
+Content-Type: application/json
+
+{
+  "query": "Can you give me examples of each type?",
+  "conversationId": "session-001"
+}
+
+### Business Query - Revenue Analysis
+# Example analytical query
+POST {{baseUrl}}/api/v1/chat
+Content-Type: application/json
+
+{
+  "query": "What is the revenue growth rate for Q4?"
+}
+
+### Business Query - Trend Analysis
+# Example multi-hop query
+POST {{baseUrl}}/api/v1/chat
+Content-Type: application/json
+
+{
+  "query": "Compare Q3 and Q4 revenue performance and explain the differences"
+}
+
+### Error Case - Missing Query
+# Should return 400 Bad Request
+POST {{baseUrl}}/api/v1/chat
+Content-Type: application/json
+
+{}
+
+### Error Case - Empty Query
+# Should return 400 Bad Request
+POST {{baseUrl}}/api/v1/chat
+Content-Type: application/json
+
+{
+  "query": ""
+}
+
+###
