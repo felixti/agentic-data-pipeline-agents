@@ -1,7 +1,7 @@
 // src/agents/classifier/index.ts
 import { generateText } from 'ai'
 import { getLLM } from '@/core/llm'
-import { createSpan } from '@/core/telemetry'
+import { createSpan, SemanticConventions } from '@/core/telemetry'
 import { CLASSIFIER_SYSTEM_PROMPT } from './prompts'
 import type { QueryType } from '@/core/state'
 
@@ -13,8 +13,9 @@ interface ClassificationResult {
 
 export async function classifyQuery(query: string): Promise<ClassificationResult> {
   return createSpan('classify_llm_call', {
-    'agent.name': 'classifier',
-    'llm.model': 'gpt-5-mini',
+    [SemanticConventions.OPENINFERENCE_SPAN_KIND]: 'llm',
+    'llm.model_name': 'gpt-5-mini',
+    'input.value': query.substring(0, 500),
   }, async (span) => {
     const { text, usage } = await generateText({
       model: getLLM('gpt-5-mini'),
@@ -29,8 +30,8 @@ export async function classifyQuery(query: string): Promise<ClassificationResult
     })
 
     span?.setAttributes({
-      'llm.tokens_used': usage?.totalTokens ?? 0,
-      'llm.response_length': text.length,
+      'llm.token_count.total': usage?.totalTokens ?? 0,
+      'output.value': text.substring(0, 500),
     })
 
     try {
