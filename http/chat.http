@@ -3,86 +3,40 @@
 ### Non-streaming chat endpoint for multi-agent RAG queries
 
 @baseUrl = http://localhost:3000
+@apiKey = your-api-key-here
 
-### Basic Query - Factual
-# Simple fact-based question
+### Chat - Basic Query
 POST {{baseUrl}}/api/v1/chat
 Content-Type: application/json
+X-API-Key: {{apiKey}}
 
 {
-  "query": "What is machine learning?"
+  "query": "What is LiteLLM?"
 }
 
-### Basic Query - Analytical
-# Question requiring explanation
+### Chat - With Conversation ID
 POST {{baseUrl}}/api/v1/chat
 Content-Type: application/json
+X-API-Key: {{apiKey}}
 
 {
-  "query": "Explain how neural networks learn from data"
+  "query": "Tell me more about it",
+  "conversationId": "conv-123"
 }
 
-### Basic Query - Comparative
-# Question comparing multiple concepts
+### Chat - Missing Query (400 Error)
 POST {{baseUrl}}/api/v1/chat
 Content-Type: application/json
-
-{
-  "query": "Compare supervised and unsupervised learning"
-}
-
-### Query with Conversation ID
-# Multi-turn conversation support
-POST {{baseUrl}}/api/v1/chat
-Content-Type: application/json
-
-{
-  "query": "What are the main types of machine learning?",
-  "conversationId": "session-001"
-}
-
-### Follow-up Query (same conversation)
-# Continue the conversation
-POST {{baseUrl}}/api/v1/chat
-Content-Type: application/json
-
-{
-  "query": "Can you give me examples of each type?",
-  "conversationId": "session-001"
-}
-
-### Business Query - Revenue Analysis
-# Example analytical query
-POST {{baseUrl}}/api/v1/chat
-Content-Type: application/json
-
-{
-  "query": "What is the revenue growth rate for Q4?"
-}
-
-### Business Query - Trend Analysis
-# Example multi-hop query
-POST {{baseUrl}}/api/v1/chat
-Content-Type: application/json
-
-{
-  "query": "Compare Q3 and Q4 revenue performance and explain the differences"
-}
-
-### Error Case - Missing Query
-# Should return 400 Bad Request
-POST {{baseUrl}}/api/v1/chat
-Content-Type: application/json
+X-API-Key: {{apiKey}}
 
 {}
 
-### Error Case - Empty Query
-# Should return 400 Bad Request
+### Chat - Missing API Key (401 Error)
 POST {{baseUrl}}/api/v1/chat
 Content-Type: application/json
 
 {
-  "query": ""
+  "query": "What is LiteLLM?"
 }
 
 ###
