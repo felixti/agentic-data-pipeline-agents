@@ -1,6 +1,6 @@
 // src/core/telemetry/__tests__/phoenix.test.ts
 import { describe, test, expect, beforeEach, afterEach } from 'bun:test'
-import { createSpan, isPhoenixEnabled, initPhoenix } from '../phoenix'
+import { createSpan, isPhoenixEnabled, initPhoenix, withSessionContext, createSessionSpan } from '../phoenix'
 
 // Mock the config module
 const originalEnv = process.env
@@ -71,6 +71,56 @@ describe('Phoenix Telemetry', () => {
 
       // Phoenix should remain disabled since no endpoint was configured
       expect(isPhoenixEnabled()).toBe(false)
+    })
+  })
+
+  describe('withSessionContext', () => {
+    test('executes function when Phoenix disabled', async () => {
+      const result = await withSessionContext('test-session', async () => {
+        return 'success'
+      })
+      expect(result).toBe('success')
+    })
+
+    test('passes through return value', async () => {
+      const result = await withSessionContext('session-123', async () => {
+        return { data: 'test' }
+      })
+      expect(result).toEqual({ data: 'test' })
+    })
+
+    test('propagates errors from wrapped function', async () => {
+      expect(async () => {
+        await withSessionContext('test-session', async () => {
+          throw new Error('session error')
+        })
+      }).toThrow('session error')
+    })
+  })
+
+  describe('createSessionSpan', () => {
+    test('executes function when Phoenix disabled', async () => {
+      const result = await createSessionSpan('test-span', {}, async () => {
+        return 'test-result'
+      })
+      expect(result).toBe('test-result')
+    })
+
+    test('passes null span when Phoenix disabled', async () => {
+      let receivedSpan: unknown = 'not-null'
+      await createSessionSpan('test-span', {}, async (span) => {
+        receivedSpan = span
+        return 'done'
+      })
+      expect(receivedSpan).toBeNull()
+    })
+
+    test('propagates errors from wrapped function', async () => {
+      expect(async () => {
+        await createSessionSpan('test-span', {}, async () => {
+          throw new Error('span error')
+        })
+      }).toThrow('span error')
     })
   })
 })
