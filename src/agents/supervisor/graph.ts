@@ -18,15 +18,32 @@ async function classifierNode(state: AgentStateValues): Promise<Partial<AgentSta
 }
 
 async function retrieverNode(state: AgentStateValues): Promise<Partial<AgentStateValues>> {
-  const result = await retrieveDocuments({
-    query: state.query,
-    queryType: state.queryType,
-    topK: 5,
-  })
-  return {
-    retrievedChunks: result.chunks,
-    retrievalScore: result.score,
-    currentAgent: 'retriever',
+  try {
+    const result = await retrieveDocuments({
+      query: state.query,
+      queryType: state.queryType,
+      topK: 5,
+    })
+    return {
+      retrievedChunks: result.chunks,
+      retrievalScore: result.score,
+      currentAgent: 'retriever',
+    }
+  } catch (error) {
+    // Handle RAG API failures gracefully - continue with empty results
+    return {
+      retrievedChunks: [],
+      retrievalScore: 0,
+      currentAgent: 'retriever',
+      errors: [
+        ...state.errors,
+        {
+          agent: 'retriever' as const,
+          message: error instanceof Error ? error.message : 'Retrieval failed',
+          timestamp: new Date().toISOString(),
+        },
+      ],
+    }
   }
 }
 
