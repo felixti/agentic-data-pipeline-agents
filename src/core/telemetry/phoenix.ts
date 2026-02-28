@@ -51,6 +51,23 @@ function getTracer() {
 }
 
 /**
+ * Execute a function within session context.
+ * All spans created within will automatically have session.id attribute.
+ */
+export async function withSessionContext<T>(
+  sessionId: string,
+  fn: () => Promise<T>
+): Promise<T> {
+  if (!phoenixEnabled) {
+    return fn()
+  }
+  return context.with(
+    setSession(context.active(), { sessionId }),
+    fn
+  )
+}
+
+/**
  * Hybrid span attributes - OpenInference + custom domain attributes
  */
 export interface SpanAttributes {
