@@ -1,7 +1,7 @@
 // src/agents/supervisor/graph.ts
 import { StateGraph, END, START } from '@langchain/langgraph'
 import { AgentStateAnnotation, type AgentStateValues } from '@/core/state'
-import { createSpan } from '@/core/telemetry'
+import { createSpan, createSessionSpan, SemanticConventions } from '@/core/telemetry'
 import { classifyQuery } from '@/agents/classifier'
 import { retrieveDocuments } from '@/agents/retriever'
 import { generateAnswer } from '@/agents/generator'
@@ -11,7 +11,7 @@ const MAX_ITERATIONS = 2
 
 async function classifierNode(state: AgentStateValues): Promise<Partial<AgentStateValues>> {
   return createSpan('classifier_node', {
-    'agent.name': 'classifier',
+    [SemanticConventions.OPENINFERENCE_SPAN_KIND]: 'chain',
     'workflow.status': 'in_progress',
   }, async (span) => {
     const result = await classifyQuery(state.query)
@@ -29,7 +29,7 @@ async function classifierNode(state: AgentStateValues): Promise<Partial<AgentSta
 
 async function retrieverNode(state: AgentStateValues): Promise<Partial<AgentStateValues>> {
   return createSpan('retriever_node', {
-    'agent.name': 'retriever',
+    [SemanticConventions.OPENINFERENCE_SPAN_KIND]: 'chain',
     'workflow.status': 'in_progress',
   }, async (span) => {
     try {
@@ -70,7 +70,7 @@ async function retrieverNode(state: AgentStateValues): Promise<Partial<AgentStat
 
 async function generatorNode(state: AgentStateValues): Promise<Partial<AgentStateValues>> {
   return createSpan('generator_node', {
-    'agent.name': 'generator',
+    [SemanticConventions.OPENINFERENCE_SPAN_KIND]: 'chain',
     'workflow.status': 'in_progress',
     'iteration.count': state.iterations,
   }, async (span) => {
@@ -91,7 +91,7 @@ async function generatorNode(state: AgentStateValues): Promise<Partial<AgentStat
 
 async function criticNode(state: AgentStateValues): Promise<Partial<AgentStateValues>> {
   return createSpan('critic_node', {
-    'agent.name': 'critic',
+    [SemanticConventions.OPENINFERENCE_SPAN_KIND]: 'chain',
     'workflow.status': 'in_progress',
     'iteration.count': state.iterations,
   }, async (span) => {
