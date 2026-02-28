@@ -26,6 +26,7 @@ export interface AgentError {
 
 export interface AgentStateValues {
   query: string
+  sessionId: string
   conversationId?: string
   context?: ConversationContext
   queryType?: QueryType
@@ -44,6 +45,7 @@ export interface AgentStateValues {
 
 export const AgentStateAnnotation = Annotation.Root({
   query: Annotation<string>,
+  sessionId: Annotation<string>,
   conversationId: Annotation<string | undefined>,
   context: Annotation<ConversationContext | undefined>,
   queryType: Annotation<QueryType | undefined>,
@@ -60,9 +62,10 @@ export const AgentStateAnnotation = Annotation.Root({
   errors: Annotation<AgentError[]>,
 })
 
-export function createInitialState(query: string, context?: ConversationContext): AgentStateValues {
+export function createInitialState(query: string, sessionId: string, context?: ConversationContext): AgentStateValues {
   return {
     query,
+    sessionId,
     context,
     iterations: 0,
     errors: [],
