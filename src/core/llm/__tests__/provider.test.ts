@@ -4,7 +4,7 @@ import { createLLMProvider, getLLM } from '../provider'
 
 describe('LLM Provider', () => {
   test('createLLMProvider returns provider instance', () => {
-    const provider = createLLMProvider()
+    const provider = createLLMProvider('gpt-4o')
     expect(provider).toBeDefined()
     expect(typeof provider).toBe('function')
   })
@@ -18,7 +18,7 @@ describe('LLM Provider', () => {
     const originalUrl = process.env.LLM_BASE_URL
     process.env.LLM_BASE_URL = 'https://custom.api.com/v1'
 
-    const provider = createLLMProvider()
+    const provider = createLLMProvider('gpt-4o')
     expect(provider).toBeDefined()
 
     process.env.LLM_BASE_URL = originalUrl

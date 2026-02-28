@@ -11,21 +11,21 @@ describe('OpenAPI Registry', () => {
 
   test('registry has health endpoint', () => {
     const document = generateOpenApiDocument()
-    expect(document.paths['/health']).toBeDefined()
-    expect(document.paths['/health'].get).toBeDefined()
+    expect(document.paths?.['/health']).toBeDefined()
+    expect(document.paths?.['/health']?.get).toBeDefined()
   })
 
   test('registry has chat endpoint with security', () => {
     const document = generateOpenApiDocument()
-    expect(document.paths['/api/v1/chat']).toBeDefined()
-    expect(document.paths['/api/v1/chat'].post).toBeDefined()
-    expect(document.paths['/api/v1/chat'].post.security).toEqual([{ ApiKeyAuth: [] }])
+    expect(document.paths?.['/api/v1/chat']).toBeDefined()
+    expect(document.paths?.['/api/v1/chat']?.post).toBeDefined()
+    expect(document.paths?.['/api/v1/chat']?.post?.security).toEqual([{ ApiKeyAuth: [] }])
   })
 
   test('registry has chat stream endpoint', () => {
     const document = generateOpenApiDocument()
-    expect(document.paths['/api/v1/chat/stream']).toBeDefined()
-    expect(document.paths['/api/v1/chat/stream'].post).toBeDefined()
+    expect(document.paths?.['/api/v1/chat/stream']).toBeDefined()
+    expect(document.paths?.['/api/v1/chat/stream']?.post).toBeDefined()
   })
 
   test('registry has ApiKeyAuth security scheme', () => {
