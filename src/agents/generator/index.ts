@@ -1,7 +1,7 @@
 // src/agents/generator/index.ts
 import { generateText } from 'ai'
 import { getLLM } from '@/core/llm'
-import { createSpan } from '@/core/telemetry'
+import { createSpan, SemanticConventions } from '@/core/telemetry'
 import { GENERATOR_SYSTEM_PROMPT } from './prompts'
 import type { RetrievedChunk } from '@/core/state'
 
@@ -19,8 +19,9 @@ interface GenerateResult {
 
 export async function generateAnswer(options: GenerateOptions): Promise<GenerateResult> {
   return createSpan('generate_llm_call', {
-    'agent.name': 'generator',
-    'llm.model': 'gpt-4.1',
+    [SemanticConventions.OPENINFERENCE_SPAN_KIND]: 'llm',
+    'llm.model_name': 'gpt-4.1',
+    'input.value': options.query.substring(0, 500),
     'llm.chunk_count': options.chunks.length,
   }, async (span) => {
     const contextText = options.chunks
@@ -41,8 +42,10 @@ Provide a comprehensive answer with source citations.`,
     })
 
     span?.setAttributes({
-      'llm.tokens_used': usage?.totalTokens ?? 0,
-      'llm.response_length': text.length,
+      'llm.token_count.total': usage?.totalTokens ?? 0,
+      'llm.token_count.prompt': usage?.inputTokens ?? 0,
+      'llm.token_count.completion': usage?.outputTokens ?? 0,
+      'output.value': text.substring(0, 500),
     })
 
     return {
