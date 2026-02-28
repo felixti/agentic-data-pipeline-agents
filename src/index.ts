@@ -3,6 +3,10 @@ import { initPhoenix } from './core/telemetry'
 import app from './api/server'
 import { config, validateEnv } from './core/config'
 
+// Enable AI SDK OpenTelemetry instrumentation
+// Must be set before any AI SDK calls
+process.env.AI_SDK_OTEL_ENABLED = 'true'
+
 validateEnv()
 initPhoenix()
 
