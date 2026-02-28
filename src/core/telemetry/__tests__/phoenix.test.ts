@@ -1,5 +1,5 @@
 // src/core/telemetry/__tests__/phoenix.test.ts
-import { describe, test, expect, beforeEach, afterEach, mock } from 'bun:test'
+import { describe, test, expect, beforeEach, afterEach } from 'bun:test'
 import { createSpan, isPhoenixEnabled, initPhoenix } from '../phoenix'
 
 // Mock the config module
@@ -54,7 +54,23 @@ describe('Phoenix Telemetry', () => {
   describe('isPhoenixEnabled', () => {
     test('returns false before initialization', () => {
       // Phoenix starts disabled
-      expect(typeof isPhoenixEnabled()).toBe('boolean')
+      expect(isPhoenixEnabled()).toBe(false)
+    })
+  })
+
+  describe('initPhoenix', () => {
+    test('keeps Phoenix disabled when endpoint is not configured', () => {
+      // Ensure no Phoenix endpoint is configured
+      delete process.env.PHOENIX_ENDPOINT
+      delete process.env.PHOENIX_API_KEY
+
+      // Re-import config to pick up the env changes
+      // Note: This test relies on config.telemetry.phoenixEndpoint being undefined
+
+      initPhoenix()
+
+      // Phoenix should remain disabled since no endpoint was configured
+      expect(isPhoenixEnabled()).toBe(false)
     })
   })
 })
