@@ -2,6 +2,17 @@
 import { config } from '../config'
 
 const RAG_API = config.rag.apiUrl
+const RAG_API_KEY = config.rag.apiKey
+
+function getHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+  if (RAG_API_KEY) {
+    headers['X-API-Key'] = RAG_API_KEY
+  }
+  return headers
+}
 
 export interface SearchResult {
   chunk_id: string
@@ -52,7 +63,7 @@ interface RAGQueryOptions {
 export async function hybridSearch(options: HybridSearchOptions): Promise<HybridSearchResponse> {
   const response = await fetch(`${RAG_API}/api/v1/search/hybrid`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getHeaders(),
     body: JSON.stringify({
       query: options.query,
       top_k: options.topK ?? 5,
@@ -73,7 +84,7 @@ export async function hybridSearch(options: HybridSearchOptions): Promise<Hybrid
 export async function semanticTextSearch(options: SearchOptions): Promise<SemanticSearchResponse> {
   const response = await fetch(`${RAG_API}/api/v1/search/semantic/text`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getHeaders(),
     body: JSON.stringify({
       query: options.query,
       top_k: options.topK ?? 5,
@@ -91,7 +102,7 @@ export async function semanticTextSearch(options: SearchOptions): Promise<Semant
 export async function ragQuery(options: RAGQueryOptions): Promise<RAGQueryResponse> {
   const response = await fetch(`${RAG_API}/api/v1/rag/query`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getHeaders(),
     body: JSON.stringify({
       query: options.query,
       strategy: options.strategy ?? 'auto',

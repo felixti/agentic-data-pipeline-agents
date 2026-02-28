@@ -48,6 +48,7 @@ interface Config {
   }
   rag: {
     apiUrl: string
+    apiKey: string
   }
   server: {
     port: number
@@ -73,6 +74,7 @@ function createConfig(): Config {
     },
     rag: {
       apiUrl: getEnv('RAG_API_URL', 'https://pipeline-api.felixtek.cloud'),
+      apiKey: getEnv('RAG_API_KEY', ''),
     },
     server: {
       port: validatePort(portValue, 'PORT'),
