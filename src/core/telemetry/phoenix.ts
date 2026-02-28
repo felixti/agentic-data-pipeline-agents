@@ -1,7 +1,9 @@
 // src/core/telemetry/phoenix.ts
 import { register } from '@arizeai/phoenix-otel'
 import { config } from '../config'
-import { trace, type Span } from '@opentelemetry/api'
+import { context, trace, type Span } from '@opentelemetry/api'
+import { setSession, getAttributesFromContext } from '@arizeai/openinference-core'
+import { SemanticConventions } from '@arizeai/openinference-semantic-conventions'
 
 let phoenixEnabled = false
 
@@ -49,24 +51,46 @@ function getTracer() {
 }
 
 /**
- * Span attributes for type safety.
+ * Hybrid span attributes - OpenInference + custom domain attributes
  */
 export interface SpanAttributes {
-  'agent.name'?: string
+  // OpenInference semantic conventions (common)
+  'session.id'?: string
+  'user.id'?: string
+  'llm.model_name'?: string
+  'llm.token_count.total'?: number
+  'llm.token_count.prompt'?: number
+  'llm.token_count.completion'?: number
+  'input.value'?: string
+  'output.value'?: string
+  'openinference.span.kind'?: 'agent' | 'chain' | 'llm' | 'tool' | 'retriever'
+
+  // Custom domain-specific attributes
   'query.type'?: string
   'retrieval.score'?: number
   'quality.score'?: number
   'iteration.count'?: number
   'workflow.status'?: 'in_progress' | 'completed' | 'failed'
-  'llm.model'?: string
-  'llm.tokens_used'?: number
-  'llm.response_length'?: number
-  'llm.chunk_count'?: number
   'tool.name'?: string
-  'tool.query'?: string
-  'tool.top_k'?: number
   'tool.result_count'?: number
+
+  // Legacy attributes (will be removed in Tasks 9-13)
+  /** @deprecated Use openinference.span.kind instead */
+  'agent.name'?: string
+  /** @deprecated Use llm.model_name instead */
+  'llm.model'?: string
+  /** @deprecated Use input.value instead */
+  'tool.query'?: string
+  /** @deprecated Will be removed */
+  'tool.top_k'?: number
+  /** @deprecated Use retrieval.score instead */
   'tool.score'?: number
+  /** @deprecated Use llm.token_count.total instead */
+  'llm.tokens_used'?: number
+  /** @deprecated Will be removed */
+  'llm.response_length'?: number
+  /** @deprecated Will be removed */
+  'llm.chunk_count'?: number
 }
 
 /**
