@@ -1,0 +1,111 @@
+// src/core/telemetry/phoenix.ts
+import { register } from '@arizeai/phoenix-otel'
+import { config } from '../config'
+import { trace, type Span } from '@opentelemetry/api'
+
+let phoenixEnabled = false
+
+/**
+ * Initialize Phoenix OpenTelemetry tracing.
+ * Gracefully degrades if endpoint is not configured or registration fails.
+ */
+export function initPhoenix(): void {
+  const endpoint = config.telemetry.phoenixEndpoint
+  const apiKey = config.telemetry.phoenixApiKey
+
+  if (!endpoint) {
+    console.log('[Phoenix] Endpoint not configured, tracing disabled')
+    return
+  }
+
+  try {
+    register({
+      projectName: 'agentic-data-pipeline-agents',
+      url: endpoint,
+      apiKey: apiKey,
+    })
+    phoenixEnabled = true
+    console.log(`[Phoenix] Tracing enabled, endpoint: ${endpoint}`)
+  } catch (error) {
+    console.warn(
+      '[Phoenix] Failed to register:',
+      error instanceof Error ? error.message : error
+    )
+  }
+}
+
+/**
+ * Check if Phoenix tracing is enabled.
+ */
+export function isPhoenixEnabled(): boolean {
+  return phoenixEnabled
+}
+
+/**
+ * Get the tracer for Phoenix spans.
+ */
+function getTracer() {
+  return trace.getTracer('agentic-data-pipeline-agents', '1.0.0')
+}
+
+/**
+ * Span attributes for type safety.
+ */
+export interface SpanAttributes {
+  'agent.name'?: string
+  'query.type'?: string
+  'retrieval.score'?: number
+  'quality.score'?: number
+  'iteration.count'?: number
+  'workflow.status'?: 'in_progress' | 'completed' | 'failed'
+  'llm.model'?: string
+  'llm.tokens_used'?: number
+  'llm.response_length'?: number
+  'llm.chunk_count'?: number
+  'tool.name'?: string
+  'tool.query'?: string
+  'tool.top_k'?: number
+  'tool.result_count'?: number
+  'tool.score'?: number
+}
+
+/**
+ * Create a span and execute a function within its context.
+ * If Phoenix is not enabled, executes the function without tracing.
+ *
+ * @param name - Span name
+ * @param attributes - Initial span attributes
+ * @param fn - Async function to execute within span context
+ * @returns Result of the function
+ */
+export async function createSpan<T>(
+  name: string,
+  attributes: SpanAttributes,
+  fn: (span: Span | null) => Promise<T>
+): Promise<T> {
+  if (!phoenixEnabled) {
+    return fn(null)
+  }
+
+  const tracer = getTracer()
+  return tracer.startActiveSpan(name, async (span) => {
+    // Set initial attributes
+    for (const [key, value] of Object.entries(attributes)) {
+      if (value !== undefined) {
+        span.setAttribute(key, value)
+      }
+    }
+
+    try {
+      const result = await fn(span)
+      span.setStatus({ code: 0 }) // OK
+      return result
+    } catch (error) {
+      span.setStatus({ code: 2, message: error instanceof Error ? error.message : 'Unknown error' })
+      span.recordException(error instanceof Error ? error : new Error(String(error)))
+      throw error
+    } finally {
+      span.end()
+    }
+  })
+}
