@@ -68,6 +68,50 @@ export async function withSessionContext<T>(
 }
 
 /**
+ * Create a session-aware span for workflow-level operations.
+ * Inherits session.id from context if set via withSessionContext.
+ */
+export async function createSessionSpan<T>(
+  name: string,
+  attributes: SpanAttributes,
+  fn: (span: Span | null) => Promise<T>
+): Promise<T> {
+  if (!phoenixEnabled) {
+    return fn(null)
+  }
+
+  const tracer = getTracer()
+  return tracer.startActiveSpan(name, async (span) => {
+    // Get session.id from context and apply to span
+    const contextAttrs = getAttributesFromContext(context.active())
+    for (const [key, value] of Object.entries(contextAttrs)) {
+      if (value !== undefined) {
+        span.setAttribute(key, value)
+      }
+    }
+
+    // Set provided attributes
+    for (const [key, value] of Object.entries(attributes)) {
+      if (value !== undefined) {
+        span.setAttribute(key, value)
+      }
+    }
+
+    try {
+      const result = await fn(span)
+      span.setStatus({ code: 0 }) // OK
+      return result
+    } catch (error) {
+      span.setStatus({ code: 2, message: error instanceof Error ? error.message : 'Unknown error' })
+      span.recordException(error instanceof Error ? error : new Error(String(error)))
+      throw error
+    } finally {
+      span.end()
+    }
+  })
+}
+
+/**
  * Hybrid span attributes - OpenInference + custom domain attributes
  */
 export interface SpanAttributes {
@@ -150,3 +194,6 @@ export async function createSpan<T>(
     }
   })
 }
+
+// Re-export for use in agents
+export { SemanticConventions }
