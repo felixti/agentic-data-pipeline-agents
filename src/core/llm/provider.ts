@@ -2,21 +2,28 @@
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import { config } from '../config'
 
-export function createLLMProvider() {
+const API_VERSION = '2024-02-15-preview'
+
+// Cache providers per model since Azure needs model in URL path
+const _providers = new Map<string, ReturnType<typeof createOpenAICompatible>>()
+
+export function createLLMProvider(modelId: string) {
+  // Azure OpenAI format: {baseURL}/openai/deployments/{model}/chat/completions?api-version=...
   return createOpenAICompatible({
-    name: 'azure-ai-foundry',
-    baseURL: config.llm.baseUrl,
+    name: 'azure-openai',
+    baseURL: `${config.llm.baseUrl}/openai/deployments/${modelId}`,
     headers: {
       'api-key': config.llm.apiKey,
+    },
+    queryParams: {
+      'api-version': API_VERSION,
     },
   })
 }
 
-let _provider: ReturnType<typeof createLLMProvider> | null = null
-
 export function getLLM(modelId: string) {
-  if (!_provider) {
-    _provider = createLLMProvider()
+  if (!_providers.has(modelId)) {
+    _providers.set(modelId, createLLMProvider(modelId))
   }
-  return _provider(modelId)
+  return _providers.get(modelId)!(modelId)
 }
