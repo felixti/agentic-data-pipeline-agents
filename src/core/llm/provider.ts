@@ -2,7 +2,15 @@
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import { config } from '../config'
 
-const API_VERSION = '2024-02-15-preview'
+// API versions per model
+const API_VERSIONS: Record<string, string> = {
+  'gpt-5-mini': '2025-04-01-preview',
+  'gpt-4.1': '2025-01-01-preview',
+}
+
+function getApiVersion(modelId: string): string {
+  return API_VERSIONS[modelId] ?? '2025-01-01-preview'
+}
 
 // Cache providers per model since Azure needs model in URL path
 const _providers = new Map<string, ReturnType<typeof createOpenAICompatible>>()
@@ -13,10 +21,10 @@ export function createLLMProvider(modelId: string) {
     name: 'azure-openai',
     baseURL: `${config.llm.baseUrl}/openai/deployments/${modelId}`,
     headers: {
-      'api-key': config.llm.apiKey,
+      Authorization: `Bearer ${config.llm.apiKey}`,
     },
     queryParams: {
-      'api-version': API_VERSION,
+      'api-version': getApiVersion(modelId),
     },
   })
 }
