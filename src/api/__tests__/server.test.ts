@@ -65,4 +65,21 @@ describe('API Server', () => {
     })
     expect(res.status).toBe(401)
   })
+
+  test('GET /openapi.json returns OpenAPI spec', async () => {
+    const res = await app.request('/openapi.json')
+    expect(res.status).toBe(200)
+    const body = (await res.json()) as { openapi: string; info: { title: string } }
+    expect(body.openapi).toBe('3.1.0')
+    expect(body.info.title).toBe('Agentic Data Pipeline API')
+  })
+
+  test('GET /openapi.yaml returns YAML OpenAPI spec', async () => {
+    const res = await app.request('/openapi.yaml')
+    expect(res.status).toBe(200)
+    expect(res.headers.get('content-type')).toContain('text/yaml')
+    const text = await res.text()
+    expect(text).toContain('openapi: 3.1.0')
+    expect(text).toContain('title: Agentic Data Pipeline API')
+  })
 })
