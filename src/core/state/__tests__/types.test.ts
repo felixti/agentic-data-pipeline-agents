@@ -4,8 +4,9 @@ import { createInitialState, type QueryType } from '../types'
 
 describe('State Types', () => {
   test('createInitialState returns correct initial state', () => {
-    const state = createInitialState('What is machine learning?')
+    const state = createInitialState('What is machine learning?', 'test-session-123')
     expect(state.query).toBe('What is machine learning?')
+    expect(state.sessionId).toBe('test-session-123')
     expect(state.iterations).toBe(0)
     expect(state.errors).toEqual([])
   })

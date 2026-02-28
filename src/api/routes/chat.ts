@@ -2,9 +2,18 @@
 import { Hono } from 'hono'
 import { streamSSE } from 'hono/streaming'
 import { createAgentGraph } from '@/agents/supervisor'
+import { withSessionContext } from '@/core/telemetry'
 
 const chat = new Hono()
 const graph = createAgentGraph()
+
+/**
+ * Get or generate session ID using hybrid approach.
+ * Uses conversationId if provided, otherwise generates a new UUID.
+ */
+function resolveSessionId(conversationId?: string): string {
+  return conversationId || crypto.randomUUID()
+}
 
 chat.post('/', async (c) => {
   const body = await c.req.json<{ query: string; conversationId?: string }>()
@@ -13,12 +22,17 @@ chat.post('/', async (c) => {
     return c.json({ error: 'Query is required' }, 400)
   }
 
+  const sessionId = resolveSessionId(body.conversationId)
+
   try {
-    const result = await graph.invoke({
-      query: body.query,
-      conversationId: body.conversationId,
-      iterations: 0,
-      errors: [],
+    const result = await withSessionContext(sessionId, async () => {
+      return graph.invoke({
+        query: body.query,
+        sessionId,
+        conversationId: body.conversationId,
+        iterations: 0,
+        errors: [],
+      })
     })
 
     return c.json({
@@ -40,26 +54,31 @@ chat.post('/', async (c) => {
 })
 
 chat.post('/stream', async (c) => {
-  const body = await c.req.json<{ query: string }>()
+  const body = await c.req.json<{ query: string; conversationId?: string }>()
 
   if (!body.query) {
     return c.json({ error: 'Query is required' }, 400)
   }
 
-  return streamSSE(c, async (stream) => {
-    const eventStream = await graph.stream({
-      query: body.query,
-      iterations: 0,
-      errors: [],
-    })
+  const sessionId = resolveSessionId(body.conversationId)
 
-    for await (const event of eventStream) {
-      await stream.writeSSE({
-        data: JSON.stringify(event),
-        event: 'agent_update',
-        id: Date.now().toString(),
+  return streamSSE(c, async (stream) => {
+    await withSessionContext(sessionId, async () => {
+      const eventStream = await graph.stream({
+        query: body.query,
+        sessionId,
+        iterations: 0,
+        errors: [],
       })
-    }
+
+      for await (const event of eventStream) {
+        await stream.writeSSE({
+          data: JSON.stringify(event),
+          event: 'agent_update',
+          id: Date.now().toString(),
+        })
+      }
+    })
   })
 })
 
