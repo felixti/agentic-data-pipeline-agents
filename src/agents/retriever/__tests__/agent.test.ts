@@ -15,7 +15,7 @@ global.fetch = mock(() =>
         query_time_ms: 50,
       }),
   } as Response)
-)
+) as unknown as typeof fetch
 
 describe('Retriever Agent', () => {
   beforeEach(() => mock.restore())

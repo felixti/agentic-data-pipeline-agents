@@ -11,8 +11,13 @@ let ragCallCount = 0
  * Mock the AI SDK's generateText function
  * Controls responses for classifier, generator, and critic agents
  */
+type ClassifierResponse =
+  | typeof llmFixtures.classifier.factual
+  | typeof llmFixtures.classifier.analytical
+  | typeof llmFixtures.classifier.vague
+
 export function mockLLM(options?: {
-  classifier?: typeof llmFixtures.classifier.factual
+  classifier?: ClassifierResponse
   generator?: string
   critic?: typeof llmFixtures.critic.pass
   sequence?: Array<{ type: 'classifier' | 'generator' | 'critic'; response: unknown }>
@@ -88,7 +93,15 @@ export function mockRAG(response?: object | Error) {
  * Mock RAG to return error response
  */
 export function mockRAGError(error: { ok: false; status: number; statusText: string }) {
-  global.fetch = mock(async () => error as Response) as unknown as typeof fetch
+  global.fetch = mock(async () => {
+    return {
+      ok: false,
+      status: error.status,
+      statusText: error.statusText,
+      json: async () => ({ error: error.statusText }),
+      text: async () => JSON.stringify({ error: error.statusText }),
+    } as Response
+  }) as unknown as typeof fetch
 }
 
 /**

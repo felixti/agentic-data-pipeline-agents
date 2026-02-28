@@ -1,5 +1,5 @@
 // src/agents/retriever/index.ts
-import { hybridSearch } from '@/core/tools'
+import { hybridSearch, type SearchResult } from '@/core/tools'
 import type { RetrievedChunk, QueryType } from '@/core/state'
 import { RETRIEVER_SYSTEM_PROMPT } from './prompts'
 
@@ -25,7 +25,7 @@ export async function retrieveDocuments(options: RetrieveOptions): Promise<Retri
     textWeight: options.queryType === 'analytical' ? 0.4 : 0.3,
   })
 
-  const chunks: RetrievedChunk[] = (response.results ?? []).map((r: any) => ({
+  const chunks: RetrievedChunk[] = (response.results ?? []).map((r: SearchResult) => ({
     chunkId: r.chunk_id,
     content: r.content,
     score: r.hybrid_score ?? r.similarity_score ?? 0,

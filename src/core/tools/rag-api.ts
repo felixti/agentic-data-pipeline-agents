@@ -3,6 +3,33 @@ import { config } from '../config'
 
 const RAG_API = config.rag.apiUrl
 
+export interface SearchResult {
+  chunk_id: string
+  content: string
+  hybrid_score?: number
+  similarity_score?: number
+  metadata?: Record<string, unknown>
+}
+
+export interface HybridSearchResponse {
+  results: SearchResult[]
+  total: number
+  query_time_ms: number
+}
+
+export interface SemanticSearchResponse {
+  results: SearchResult[]
+  total: number
+  query_time_ms: number
+}
+
+export interface RAGQueryResponse {
+  results: SearchResult[]
+  total: number
+  query_time_ms: number
+  answer?: string
+}
+
 interface SearchOptions {
   query: string
   topK?: number
@@ -22,7 +49,7 @@ interface RAGQueryOptions {
   topK?: number
 }
 
-export async function hybridSearch(options: HybridSearchOptions) {
+export async function hybridSearch(options: HybridSearchOptions): Promise<HybridSearchResponse> {
   const response = await fetch(`${RAG_API}/api/v1/search/hybrid`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -40,10 +67,10 @@ export async function hybridSearch(options: HybridSearchOptions) {
     throw new Error(`Hybrid search failed: ${response.statusText}`)
   }
 
-  return response.json()
+  return response.json() as Promise<HybridSearchResponse>
 }
 
-export async function semanticTextSearch(options: SearchOptions) {
+export async function semanticTextSearch(options: SearchOptions): Promise<SemanticSearchResponse> {
   const response = await fetch(`${RAG_API}/api/v1/search/semantic/text`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -58,10 +85,10 @@ export async function semanticTextSearch(options: SearchOptions) {
     throw new Error(`Semantic search failed: ${response.statusText}`)
   }
 
-  return response.json()
+  return response.json() as Promise<SemanticSearchResponse>
 }
 
-export async function ragQuery(options: RAGQueryOptions) {
+export async function ragQuery(options: RAGQueryOptions): Promise<RAGQueryResponse> {
   const response = await fetch(`${RAG_API}/api/v1/rag/query`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -77,5 +104,5 @@ export async function ragQuery(options: RAGQueryOptions) {
     throw new Error(`RAG query failed: ${response.statusText}`)
   }
 
-  return response.json()
+  return response.json() as Promise<RAGQueryResponse>
 }

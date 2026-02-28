@@ -32,7 +32,7 @@ global.fetch = mock(() => {
     text: () => Promise.resolve(JSON.stringify(responseData)),
     json: () => Promise.resolve(responseData),
   } as Response)
-})
+}) as unknown as typeof fetch
 
 describe('Generator Agent', () => {
   beforeEach(() => mock.restore())

@@ -27,7 +27,7 @@ export async function critiqueAnswer(options: CritiqueOptions): Promise<Critique
   const sourcesText = options.sources.map(s => s.content).join('\n')
 
   const { text } = await generateText({
-    model: getLLM('gpt-4o-mini'),
+    model: getLLM('gpt-5-mini'),
     system: CRITIC_SYSTEM_PROMPT,
     prompt: `Query: ${options.query}
 
@@ -38,6 +38,12 @@ Available sources:
 ${sourcesText || 'No sources provided'}
 
 Evaluate the answer quality.`,
+    temperature: 1.0,
+    providerOptions: {
+      openai: {
+        reasoningEffort: 'medium',
+      },
+    },
   })
 
   try {

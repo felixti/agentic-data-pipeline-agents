@@ -4,12 +4,12 @@ export const errorFixtures = {
   llmRateLimit: new Error('Rate limit exceeded'),
   llmMalformed: '{ invalid json response',
   ragUnavailable: {
-    ok: false,
+    ok: false as const,
     status: 503,
     statusText: 'Service Unavailable',
   },
   ragTimeout: {
-    ok: false,
+    ok: false as const,
     status: 504,
     statusText: 'Gateway Timeout',
   },

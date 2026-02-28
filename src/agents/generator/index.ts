@@ -22,7 +22,7 @@ export async function generateAnswer(options: GenerateOptions): Promise<Generate
     .join('\n\n')
 
   const { text, usage } = await generateText({
-    model: getLLM('gpt-4o'),
+    model: getLLM('gpt-4.1'),
     system: GENERATOR_SYSTEM_PROMPT,
     prompt: `Query: ${options.query}
 

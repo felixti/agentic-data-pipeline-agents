@@ -8,7 +8,7 @@ global.fetch = mock(() =>
     ok: true,
     json: () => Promise.resolve({ results: [], total: 0, queryTimeMs: 10 }),
   } as Response)
-)
+) as unknown as typeof fetch
 
 describe('RAG API Tools', () => {
   beforeEach(() => {

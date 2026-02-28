@@ -12,9 +12,15 @@ interface ClassificationResult {
 
 export async function classifyQuery(query: string): Promise<ClassificationResult> {
   const { text } = await generateText({
-    model: getLLM('gpt-4o-mini'),
+    model: getLLM('gpt-5-mini'),
     system: CLASSIFIER_SYSTEM_PROMPT,
     prompt: `Classify this query: "${query}"`,
+    temperature: 1.0,
+    providerOptions: {
+      openai: {
+        reasoningEffort: 'medium',
+      },
+    },
   })
 
   try {
