@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.30",
+    "@arizeai/phoenix-otel": "^0.4.2",
     "@asteasolutions/zod-to-openapi": "^8.4.1",
     "@langchain/core": "^1.1.29",
     "@langchain/langgraph": "^1.2.0",
