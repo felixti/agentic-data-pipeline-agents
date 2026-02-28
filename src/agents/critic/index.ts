@@ -1,7 +1,7 @@
 // src/agents/critic/index.ts
 import { generateText } from 'ai'
 import { getLLM } from '@/core/llm'
-import { createSpan } from '@/core/telemetry'
+import { createSpan, SemanticConventions } from '@/core/telemetry'
 import { CRITIC_SYSTEM_PROMPT } from './prompts'
 import type { RetrievedChunk } from '@/core/state'
 
@@ -26,8 +26,9 @@ interface CritiqueResult {
 
 export async function critiqueAnswer(options: CritiqueOptions): Promise<CritiqueResult> {
   return createSpan('critique_llm_call', {
-    'agent.name': 'critic',
-    'llm.model': 'gpt-5-mini',
+    [SemanticConventions.OPENINFERENCE_SPAN_KIND]: 'llm',
+    'llm.model_name': 'gpt-5-mini',
+    'input.value': options.query.substring(0, 500),
   }, async (span) => {
     const sourcesText = options.sources.map(s => s.content).join('\n')
 
@@ -52,8 +53,8 @@ Evaluate the answer quality.`,
     })
 
     span?.setAttributes({
-      'llm.tokens_used': usage?.totalTokens ?? 0,
-      'llm.response_length': text.length,
+      'llm.token_count.total': usage?.totalTokens ?? 0,
+      'output.value': text.substring(0, 500),
     })
 
     try {
