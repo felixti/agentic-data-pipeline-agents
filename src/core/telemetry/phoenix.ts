@@ -174,7 +174,15 @@ export async function createSpan<T>(
 
   const tracer = getTracer()
   return tracer.startActiveSpan(name, async (span) => {
-    // Set initial attributes
+    // Inherit session.id from context (set by withSessionContext)
+    const contextAttrs = getAttributesFromContext(context.active())
+    for (const [key, value] of Object.entries(contextAttrs)) {
+      if (value !== undefined) {
+        span.setAttribute(key, value)
+      }
+    }
+
+    // Set provided attributes
     for (const [key, value] of Object.entries(attributes)) {
       if (value !== undefined) {
         span.setAttribute(key, value)
