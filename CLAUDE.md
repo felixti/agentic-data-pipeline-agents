@@ -6,16 +6,16 @@ Multi-agent RAG system using LangGraph.js for conversational Q&A. Built with Bun
 
 ## Tech Stack
 
-| Component | Technology |
-|-----------|------------|
-| Runtime | Bun |
-| Language | TypeScript |
-| Agent Framework | LangGraph.js |
-| LLM SDK | @ai-sdk/openai-compatible |
-| API Framework | Hono |
-| Testing | Bun test runner |
-| Linting/Formatting | Biome |
-| Containerization | Docker + Docker Compose |
+| Component          | Technology                |
+| ------------------ | ------------------------- |
+| Runtime            | Bun                       |
+| Language           | TypeScript                |
+| Agent Framework    | LangGraph.js              |
+| LLM SDK            | @ai-sdk/openai-compatible |
+| API Framework      | Hono                      |
+| Testing            | Bun test runner           |
+| Linting/Formatting | Biome                     |
+| Containerization   | Docker + Docker Compose   |
 
 ## Project Structure
 
@@ -52,12 +52,12 @@ docker-compose up    # Run containerized
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| LLM_BASE_URL | Azure AI Foundry endpoint | Yes |
-| LLM_API_KEY | API key | Yes |
-| RAG_API_URL | RAG API URL | No |
-| PORT | Server port | No (default: 3000) |
+| Variable     | Description               | Required           |
+| ------------ | ------------------------- | ------------------ |
+| LLM_BASE_URL | Azure AI Foundry endpoint | Yes                |
+| LLM_API_KEY  | API key                   | Yes                |
+| RAG_API_URL  | RAG API URL               | No                 |
+| PORT         | Server port               | No (default: 3000) |
 
 ## Architecture
 
@@ -71,11 +71,11 @@ Hierarchical Supervisor pattern with 5 agents:
 
 ## API Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | /health | Health check |
-| POST | /api/v1/chat | Submit query |
-| POST | /api/v1/chat/stream | Streaming response |
+| Method | Path                | Description        |
+| ------ | ------------------- | ------------------ |
+| GET    | /health             | Health check       |
+| POST   | /api/v1/chat        | Submit query       |
+| POST   | /api/v1/chat/stream | Streaming response |
 
 ## Session Instructions
 
@@ -83,8 +83,8 @@ Hierarchical Supervisor pattern with 5 agents:
 
 ```typescript
 // Use memory tools to recall context
-mcp__memory__aim_memory_search({ query: "agentic-data-pipeline-agents" })
-mcp__memory__aim_memory_get({ names: ["project_context", "current_state"] })
+mcp__memory__aim_memory_search({ query: "agentic-data-pipeline-agents" });
+mcp__memory__aim_memory_get({ names: ["project_context", "current_state"] });
 ```
 
 1. Review CLAUDE.md and docs/plans/
@@ -96,14 +96,24 @@ mcp__memory__aim_memory_get({ names: ["project_context", "current_state"] })
 ```typescript
 // Store session progress
 mcp__memory__aim_memory_store({
-  entities: [{
-    name: "session_${date}",
-    entityType: "session",
-    observations: ["Completed: ...", "Next: ..."]
-  }]
-})
+  entities: [
+    {
+      name: "session_${date}",
+      entityType: "session",
+      observations: ["Completed: ...", "Next: ..."],
+    },
+  ],
+});
 ```
 
 1. Store completed tasks and decisions
 2. Note blockers and next steps
 3. Update docs if architecture changed
+
+### Deployment Instructions
+
+- Access VPS using SSH (ssh root@72.61.52.191)
+- Use the key ./.ssh/ralph_loop_key
+- Dokploy using Docker Compose
+- you NEVER build on the server, Dokploy is responsible for building the image on the server using the Dockerfile in the repo
+- Manage environment variables securely (e.g., using .env file or secrets manager)

@@ -10,6 +10,9 @@ services:
       - LLM_BASE_URL=${LLM_BASE_URL}
       - LLM_API_KEY=${LLM_API_KEY}
       - RAG_API_URL=${RAG_API_URL:-https://pipeline-api.felixtek.cloud}
+      - PHOENIX_COLLECTOR_ENDPOINT=${PHOENIX_COLLECTOR_ENDPOINT:-https://phoenix.felixtek.cloud}
+      - PHOENIX_API_KEY=${PHOENIX_API_KEY:-your-api-key}
+      - AI_SDK_OTEL_ENABLED=${AI_SDK_OTEL_ENABLED:-true}
       - PORT=3000
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
